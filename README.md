@@ -80,7 +80,7 @@ The goal is to build a strong foundation in Java, understand object-oriented pro
 
 ## 📂 Repository Structure
 
-```
+```text
 PMIS/
 ├── Basic Excercise/
 ├── hackerrank/
