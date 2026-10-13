@@ -1,4 +1,4 @@
-# 📊 PMIS (Project Management Information System)
+# 📊 PMIS
 
 ![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-F2F4F9?style=for-the-badge&logo=spring-boot)
@@ -80,7 +80,7 @@ The goal is to build a strong foundation in Java, understand object-oriented pro
 
 ## 📂 Repository Structure
 
-```text
+```
 PMIS/
 ├── Basic Excercise/
 ├── hackerrank/
