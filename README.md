@@ -63,7 +63,7 @@ Each exercise is a chance to:
 
 ## 🧩 Topics Practised
 
-The repository evolves as I progress through internship training and programming exercises.
+The repository evolves as I progress through internship and programming exercises.
 
 <table>
   <tr>
