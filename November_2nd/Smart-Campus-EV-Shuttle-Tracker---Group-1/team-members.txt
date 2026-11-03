@@ -1,0 +1,38 @@
+Smart Campus EV Shuttle Tracker (Group 1)
+Spring Mini Hackathon 2026 - Problem Statement #1
+
+================================================================================
+Team Members & Contributions Summary:
+================================================================================
+
+1. Utkarsh Tripathi (Member 2)
+   - Roles: Shuttle DAO Specialist & Architecture Lead
+   - Branch: feature/shuttle-dao / main
+   - Contributions:
+     * Domain Models: Shuttle, Route, TripLog, ShuttleAnalyticsDTO, TripResult POJOs
+     * RowMappers: ShuttleRowMapper, RouteRowMapper, TripLogRowMapper, ShuttleAnalyticsRowMapper
+     * DAO Layer: ShuttleDao, RouteDao, TripLogDao (JdbcTemplate with parameterized queries)
+     * Service Layer: FleetService & FleetServiceImpl (Business logic, battery depletion, auto-maintenance < 15%)
+     * Interactive UI: FleetConsoleRunner (Full 9-option interactive terminal menu)
+     * Database Scripts: schema.sql (DDL with relational constraints) and data.sql (seed data)
+     * Test Suite: Comprehensive unit & integration tests covering all 5 functional requirements
+
+2. Pratik Godase (Member 1)
+   - Role: Project Lead & Initial Repository Scaffolding
+   - Branch: feature/pratik
+
+3. Varun (Member 6)
+   - Role: Fleet Console Runner & UI Support
+   - Branch: feature/Varun
+
+4. Atharva (Member 3)
+   - Role: Route Management
+   - Branch: feature/atharva
+
+5. Himanshu (Member 4)
+   - Role: Multi-Table Joined Analytics Support
+   - Branch: feature/himanshu
+
+6. Omkar (Member 5)
+   - Role: Business Rules & Validation Support
+   - Branch: feature/omkar
