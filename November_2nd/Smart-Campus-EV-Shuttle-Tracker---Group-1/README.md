@@ -1,46 +1,150 @@
 # ⚡ Smart Campus EV Shuttle Tracker (Group 1)
 
-[![Java 17](https://img.shields.io/badge/Java-17%20%7C%2021-orange.svg)](https://www.oracle.com/java/)
+[![Java 17](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Spring JDBC](https://img.shields.io/badge/Data%20Access-Spring%20JdbcTemplate-blue.svg)](https://spring.io/)
 [![MySQL](https://img.shields.io/badge/Database-MySQL%208.x-blue.svg)](https://www.mysql.com/)
+[![H2](https://img.shields.io/badge/Fallback%20%2F%20Tests-H2%20In--Memory-lightgrey.svg)](https://www.h2database.com/)
 
-A modular, enterprise-grade console application powered by **Spring Core** and **Spring JDBC (`JdbcTemplate`)** to monitor campus electric vehicle (EV) fleets, manage route allocation, record passenger trip logs, and automate fleet maintenance workflows.
+A modular console application built on **Spring Core** and **Spring JDBC (`JdbcTemplate`)** to monitor campus electric vehicle (EV) fleets, manage route allocation, record passenger trip logs, and automate fleet maintenance workflows.
+
+> Built for **Spring Mini Hackathon 2026 – Problem Statement #1**.
 
 ---
 
-## 🏛️ Enterprise Multi-Layer Architecture
+## 📑 Table of Contents
 
-The project strictly follows layered separation of concerns to avoid monolithic designs:
+1. [Features](#-features)
+2. [Tech Stack](#-tech-stack)
+3. [Project Structure](#-project-structure)
+4. [Architecture Overview](#-architecture-overview)
+5. [Functional Requirements Coverage](#-functional-requirements-coverage)
+6. [Business Rules](#-business-rules)
+7. [Database Schema](#-database-schema)
+8. [Getting Started](#-getting-started)
+9. [Testing](#-testing)
+10. [Console Menu & Screenshots](#-console-menu--screenshots)
+11. [Team Roles & Responsibilities](#-team-roles--responsibilities)
+
+---
+
+## ✨ Features
+
+- Onboard shuttles with a driver name and initial battery level
+- Query only *deployable* shuttles (`AVAILABLE` and battery above 20%)
+- Log trips against campus route stops with automatic battery depletion
+- Auto-move low-battery shuttles into `MAINTENANCE`
+- Joined analytics: total trips and passengers per shuttle
+- Manual maintenance override and recharge/release workflow
+- Runs with **MySQL**, and automatically falls back to an in-memory **H2** database if MySQL is unreachable
+
+---
+
+## 🧰 Tech Stack
+
+| Area | Technology |
+|---|---|
+| Language | Java 17 |
+| Framework | Spring Boot 3.2.5 (Spring Core, Spring JDBC, HikariCP) |
+| Data access | `JdbcTemplate`, custom `RowMapper`s, `GeneratedKeyHolder` |
+| Database | MySQL 8.x (primary), H2 in MySQL mode (fallback and tests) |
+| Build | Maven (wrapper included: `mvnw` / `mvnw.cmd`) |
+| Testing | JUnit 5, Spring Boot Starter Test |
+
+---
+
+## 📂 Project Structure
 
 ```
-src/main/java/com/campus/shuttle/
-├── SmartCampusShuttleApplication.java          # Spring Boot Main Entry Point
-├── model/                                      # Domain POJOs & DTOs
-│   ├── Shuttle.java                            # EV Shuttle Entity (shuttleId, driverName, batteryPct, status)
-│   ├── Route.java                              # Campus Hub Route Entity (routeId, stopName, sequenceOrder)
-│   ├── TripLog.java                            # Completed Trip Record (logId, shuttleId, routeId, passengers)
-│   ├── ShuttleAnalyticsDTO.java                # Multi-table Joined Analytics DTO (FR-4)
-│   └── TripResult.java                         # Trip Execution Summary DTO with Battery Depletion
-├── rowmapper/                                  # Custom Spring RowMapper Implementations
-│   ├── ShuttleRowMapper.java                   # ResultSet -> Shuttle mapping
-│   ├── RouteRowMapper.java                     # ResultSet -> Route mapping
-│   ├── TripLogRowMapper.java                   # ResultSet -> TripLog mapping
-│   └── ShuttleAnalyticsRowMapper.java          # Multi-Table Joined ResultSet -> ShuttleAnalyticsDTO
-├── dao/                                        # Data Access Layer (Spring JdbcTemplate)
-│   ├── ShuttleDao.java & ShuttleDaoImpl.java   # Parameterized JDBC queries for Shuttles
-│   ├── RouteDao.java & RouteDaoImpl.java       # Parameterized JDBC queries for Routes
-│   └── TripLogDao.java & TripLogDaoImpl.java   # Parameterized JDBC queries for Trip Logs
-├── service/                                    # Business Logic & Rules Automation
-│   ├── FleetService.java                       # Service Interface
-│   ├── FleetServiceImpl.java                   # Automated state transitions & validations
-│   └── exception/                              # Domain-specific Custom Exceptions
-│       ├── ShuttleNotFoundException.java
-│       ├── RouteNotFoundException.java
-│       ├── ShuttleNotDeployableException.java
-│       └── InvalidTripException.java
-└── ui/                                         # Controller / User Interface Layer
-    └── FleetConsoleRunner.java                 # Interactive ASCII Terminal CLI Runner
+Smart-Campus-EV-Shuttle-Tracker---Group-1/
+├── pom.xml                                         # Maven build (Spring Boot 3.2.5, Java 17)
+├── mvnw / mvnw.cmd                                 # Maven wrapper scripts
+├── .mvn/wrapper/maven-wrapper.properties           # Maven wrapper configuration
+├── .gitignore
+├── README.md
+├── team-members.txt                                # Team roster and contribution summary
+│
+├── Output/                                         # Console run screenshots (Output_1 … Output_10)
+│
+└── src/
+    ├── main/
+    │   ├── java/com/campus/shuttle/
+    │   │   ├── SmartCampusShuttleApplication.java  # Spring Boot main entry point
+    │   │   │
+    │   │   ├── config/
+    │   │   │   └── DatabaseConfig.java             # DataSource bean: tries MySQL, falls back to H2
+    │   │   │
+    │   │   ├── model/                              # Domain POJOs and DTOs
+    │   │   │   ├── Shuttle.java                    # shuttleId, driverName, batteryPct, status
+    │   │   │   ├── Route.java                      # routeId, stopName, sequenceOrder
+    │   │   │   ├── TripLog.java                    # logId, shuttleId, routeId, passengersBoarded, timestamp
+    │   │   │   ├── ShuttleAnalyticsDTO.java        # Joined analytics result (FR-4)
+    │   │   │   └── TripResult.java                 # Trip summary with battery before/after
+    │   │   │
+    │   │   ├── rowmapper/                          # ResultSet -> object mappers
+    │   │   │   ├── ShuttleRowMapper.java
+    │   │   │   ├── RouteRowMapper.java
+    │   │   │   ├── TripLogRowMapper.java
+    │   │   │   └── ShuttleAnalyticsRowMapper.java
+    │   │   │
+    │   │   ├── dao/                                # Data access layer (JdbcTemplate, parameterized SQL)
+    │   │   │   ├── ShuttleDao.java / ShuttleDaoImpl.java
+    │   │   │   ├── RouteDao.java / RouteDaoImpl.java
+    │   │   │   └── TripLogDao.java / TripLogDaoImpl.java
+    │   │   │
+    │   │   ├── service/                            # Business logic and rule automation
+    │   │   │   ├── FleetService.java
+    │   │   │   ├── FleetServiceImpl.java
+    │   │   │   └── exception/
+    │   │   │       ├── ShuttleNotFoundException.java
+    │   │   │       ├── RouteNotFoundException.java
+    │   │   │       ├── ShuttleNotDeployableException.java
+    │   │   │       └── InvalidTripException.java
+    │   │   │
+    │   │   └── ui/
+    │   │       └── FleetConsoleRunner.java         # Interactive ASCII console menu
+    │   │
+    │   └── resources/
+    │       ├── application.properties              # MySQL connection, SQL init, logging
+    │       ├── schema.sql                          # DDL (drops and recreates tables on every start)
+    │       └── data.sql                            # Seed shuttles, routes and trip logs
+    │
+    └── test/
+        ├── java/com/campus/shuttle/
+        │   ├── dao/
+        │   │   ├── ShuttleDaoTest.java
+        │   │   ├── RouteDaoTest.java
+        │   │   └── TripLogDaoTest.java
+        │   └── service/
+        │       └── FleetServiceTest.java
+        └── resources/
+            └── application.properties              # H2 in-memory test configuration
+```
+
+---
+
+## 🏛️ Architecture Overview
+
+The project uses strict layered separation of concerns:
+
+```
+ ┌────────────────────┐
+ │  ui                │  FleetConsoleRunner (console menu, input handling, display)
+ └─────────┬──────────┘
+           ▼
+ ┌────────────────────┐
+ │  service           │  FleetService / FleetServiceImpl (rules, validation, @Transactional)
+ └─────────┬──────────┘
+           ▼
+ ┌────────────────────┐
+ │  dao + rowmapper   │  JdbcTemplate with parameterized queries
+ └─────────┬──────────┘
+           ▼
+ ┌────────────────────┐
+ │  config            │  DatabaseConfig -> MySQL, or H2 fallback
+ └────────────────────┘
+
+ model (Shuttle, Route, TripLog, DTOs) is shared across all layers.
 ```
 
 ---
@@ -49,17 +153,33 @@ src/main/java/com/campus/shuttle/
 
 | Requirement | Description | Implementation Highlights |
 |---|---|---|
-| **FR-1: Shuttle Fleet Onboarding & Inventory** | Register new shuttles with driver name and battery percentage; full inventory dashboard. | `FleetService.registerShuttle()` using `GeneratedKeyHolder` to capture auto-increment IDs; `findAllShuttles()`. |
-| **FR-2: Dynamic Availability Querying** | Query deployable vehicles meeting strict criteria (`status = 'AVAILABLE'` AND `battery_pct > 20%`). | Parameterized query `WHERE status = ? AND battery_pct > ?` preventing SQL injection; sorted by highest battery first. |
-| **FR-3: Trip Logging & Battery Depletion** | Log completed trips, deduct realistic battery percentage (10% per trip). | Deducts battery; **Automated Business Rule**: If battery drops below **15%**, automatically transitions status to `'MAINTENANCE'`. |
-| **FR-4: Multi-Table Joined Analytics** | Display each shuttle with total completed trips and aggregate passenger count. | `LEFT JOIN trip_logs` grouped by `shuttle_id` using custom `ShuttleAnalyticsRowMapper`. |
-| **FR-5: Maintenance Flag & Override** | Allow campus dispatchers to manually place any vehicle under maintenance. | Updates status to `'MAINTENANCE'`, instantly preventing subsequent trip dispatches. |
+| **FR-1: Fleet Onboarding & Inventory** | Register shuttles with driver name and battery percentage; full inventory dashboard. | `FleetService.registerShuttle()` captures auto-increment IDs via `GeneratedKeyHolder`; `getAllShuttles()` for the dashboard. |
+| **FR-2: Dynamic Availability Querying** | List deployable vehicles (`status = 'AVAILABLE'` AND `battery_pct > 20`). | Parameterized `WHERE status = ? AND battery_pct > ?`, sorted by highest battery first. |
+| **FR-3: Trip Logging & Battery Depletion** | Log completed trips and deduct 10% battery per trip. | Dispatch is validated first; battery drops by 10%; if the result is below **15%** the status automatically becomes `MAINTENANCE`. |
+| **FR-4: Multi-Table Joined Analytics** | Show each shuttle with total trips and total passengers. | `LEFT JOIN trip_logs` grouped by shuttle, ordered by trip count, mapped by `ShuttleAnalyticsRowMapper`. |
+| **FR-5: Maintenance Flag & Override** | Let dispatchers manually place any vehicle under maintenance. | Sets status to `MAINTENANCE`, which blocks further trip dispatches. |
 
 ---
 
-## 🗄️ Database Schema Design (MySQL)
+## 📏 Business Rules
 
-Relational integrity enforced with Primary Keys, Foreign Keys, and Cascade Deletions:
+| Rule | Value |
+|---|---|
+| Deployable shuttle | Status `AVAILABLE` **and** battery **> 20%** |
+| Battery used per trip | **10%** |
+| Auto-maintenance threshold | Battery **< 15%** after a trip |
+| Registration | A shuttle registered with battery **< 15%** starts as `MAINTENANCE`; otherwise `AVAILABLE` |
+| Valid battery input | 0 – 100 |
+| Trip passengers | Must be greater than 0 |
+| Recharge & release | New battery must be 21% – 100%; shuttle returns to `AVAILABLE` |
+
+**Custom exceptions:** `ShuttleNotFoundException`, `RouteNotFoundException`, `ShuttleNotDeployableException`, `InvalidTripException`.
+
+---
+
+## 🗄️ Database Schema
+
+Defined in `src/main/resources/schema.sql`, with Primary Keys, Foreign Keys, and cascade deletes:
 
 ```sql
 -- Table: shuttles
@@ -89,60 +209,84 @@ CREATE TABLE trip_logs (
 );
 ```
 
----
-
-## 👥 Team Roles & Responsibilities
-
-| Member | Role | Branch | Completed Contributions |
-|---|---|---|---|
-| **Utkarsh Tripathi** | Shuttle DAO Specialist & Architecture Lead | `feature/shuttle-dao` / `main` | End-to-end multi-layer architecture, domain models, Spring JDBC DAOs, Service layer automation, and test suite |
-| **Pratik Godase** | Project Setup & Initial Scaffolding | `feature/pratik` | Repository initialization, baseline Spring configuration |
-| **Varun** | Console Runner & UI | `feature/Varun` | Fleet interactive CLI loop and terminal display formatting |
-| **Atharva** | Route Management Specialist | `feature/atharva` | Route data access and stop sequencing |
-| **Himanshu** | Analytics & Join Specialist | `feature/himanshu` | Multi-table joins and aggregation reporting |
-| **Omkar** | Service Rules & Validation | `feature/omkar` | Business rule assertions and exception handling |
+**Seed data (`data.sql`):** 6 shuttles in mixed states (available, low battery, in transit, charging, maintenance), 6 campus stops (North Gate Main Terminal → Sports Arena & Cafeteria), and 4 sample trip logs.
 
 ---
 
-## 🚀 How to Run the Application
+## 🚀 Getting Started
 
-### 1. Database Setup (MySQL)
-Create the database schema in MySQL Workbench or CLI:
+### Prerequisites
+
+- JDK 17
+- MySQL 8.x *(optional, the app falls back to in-memory H2 if MySQL is unavailable)*
+
+### 1. Configure the database (optional)
+
+Create the database:
+
 ```sql
 CREATE DATABASE IF NOT EXISTS shuttle_tracker;
 ```
-Verify your MySQL credentials in `src/main/resources/application.properties`:
+
+Check the credentials in `src/main/resources/application.properties` and change them to match your setup:
+
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/shuttle_tracker?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
 spring.datasource.username=root
 spring.datasource.password=root
 ```
-*(Spring Boot will automatically execute `schema.sql` and `data.sql` upon boot).*
 
-### 2. Build and Execute Tests
-Run the automated test suite (uses H2 in-memory database with zero external setup needed):
-```powershell
-./mvnw clean test
+Spring Boot runs `schema.sql` and `data.sql` on every startup (`spring.sql.init.mode=always`).
+
+> ⚠️ `schema.sql` **drops and recreates** all tables on each run, so any data you add in a session is reset the next time the app starts.
+
+> ℹ️ **No MySQL? No problem.** `DatabaseConfig` waits about 2 seconds for MySQL, then switches to an in-memory H2 database (`jdbc:h2:mem:shuttle_tracker`, MySQL mode) and runs the same scripts. The console log shows which database was used.
+
+### 2. Run the application
+
+```bash
+./mvnw spring-boot:run        # macOS / Linux
+mvnw.cmd spring-boot:run      # Windows (cmd)
 ```
 
-### 3. Launch Interactive Console UI
-Run the Spring Boot console application:
-```powershell
-./mvnw spring-boot:run
+You can also run `SmartCampusShuttleApplication` directly from your IDE (Eclipse, IntelliJ, or VS Code).
+
+### 3. Build a runnable JAR (optional)
+
+```bash
+./mvnw clean package
+java -jar target/smart-campus-ev-shuttle-tracker-1.0.0-SNAPSHOT.jar
 ```
 
 ---
 
-## 🖥️ Interactive Console Menu Preview
+## 🧪 Testing
+
+Tests use an in-memory H2 database (`src/test/resources/application.properties`), so no external setup is needed.
+
+```bash
+./mvnw clean test
+```
+
+| Test class | Focus |
+|---|---|
+| `ShuttleDaoTest` | Insert, lookup, deployable query, status and battery updates |
+| `RouteDaoTest` | Route retrieval and insertion |
+| `TripLogDaoTest` | Trip log persistence and retrieval |
+| `FleetServiceTest` | Registration, low-battery rejection, non-available rejection, 10% battery deduction, auto-maintenance trigger, manual maintenance |
+
+---
+
+## 🖥️ Console Menu & Screenshots
 
 ```text
 ================================================================================
-          ⚡ SMART CAMPUS EV SHUTTLE TRACKER & FLEET ALLOCATION ⚡              
-                   Spring Core & Spring JDBC Enterprise CLI                     
+          ⚡ SMART CAMPUS EV SHUTTLE TRACKER & FLEET ALLOCATION ⚡
+                   Spring Core & Spring JDBC Enterprise CLI
 ================================================================================
 
 --------------------------------------------------
-                   FLEET MENU                     
+                   FLEET MENU
 --------------------------------------------------
   1. [FR-1] Register / Onboard New Shuttle
   2. [FR-1] Fleet Inventory Dashboard (All Shuttles)
@@ -156,3 +300,32 @@ Run the Spring Boot console application:
 --------------------------------------------------
 👉 Enter choice (1 - 9):
 ```
+
+### Sample run
+
+| Screen | Screenshot |
+|---|---|
+| Main menu | ![Main menu](Output/Output_1.png) |
+| FR-1: Register a shuttle (a 10% battery shuttle starts in `MAINTENANCE`) | ![Register shuttle](Output/Output_2.png) |
+| FR-1: Fleet inventory dashboard | ![Inventory](Output/Output_3.png) |
+| FR-2: Deployable shuttles only | ![Deployable shuttles](Output/Output_4.png) |
+| FR-3: Dispatch rejected for a shuttle in maintenance | ![Dispatch rejected](Output/Output_5.png) |
+| FR-5: Manual maintenance override | ![Maintenance override](Output/Output_7.png) |
+| Campus hub routes | ![Routes](Output/Output_8.png) |
+| Recent trip logs | ![Trip logs](Output/Output_9.png) |
+| Menu and clean exit | ![Exit](Output/Output_10.png) |
+
+---
+
+## 👥 Team Roles & Responsibilities
+
+| Member | Role | Branch | Completed Contributions |
+|---|---|---|---|
+| **Utkarsh Tripathi** | Shuttle DAO Specialist & Architecture Lead | `feature/shuttle-dao` / `main` | End-to-end multi-layer architecture, domain models, Spring JDBC DAOs, service layer automation, console UI, SQL scripts, and test suite |
+| **Pratik Godase** | Project Lead & Initial Repository Scaffolding | `feature/pratik` | Repository initialization, baseline Spring configuration |
+| **Varun** | Console Runner & UI Support | `feature/Varun` | Fleet interactive CLI loop and terminal display formatting |
+| **Atharva** | Route Management | `feature/atharva` | Route data access and stop sequencing |
+| **Himanshu** | Analytics & Join Support | `feature/himanshu` | Multi-table joins and aggregation reporting |
+| **Omkar** | Business Rules & Validation Support | `feature/omkar` | Business rule assertions and exception handling |
+
+See [`team-members.txt`](team-members.txt) for the full contribution summary.
