@@ -402,7 +402,7 @@ See [`team-members.txt`](team-members.txt) for the full summary.
 
 <img src="assets/divider.svg" width="100%" alt=""/>
 
-**⚡ Spring Mini Hackathon 2026 · Problem Statement #1 · Group 1 ⚡**
+** Group 1 ⚡**
 
 *If you like this project, give it a ⭐*
 
