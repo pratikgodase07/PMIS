@@ -1,0 +1,30 @@
+0:20:17 Memory Pressure: Moderate
+0:20:27 Memory Pressure: Moderate
+0:20:37 Memory Pressure: Moderate
+0:20:47 Memory Pressure: Moderate
+0:20:57 Memory Pressure: Moderate
+0:21:07 Memory Pressure: Moderate
+0:21:17 Memory Pressure: Moderate
+0:21:27 Memory Pressure: Moderate
+0:21:28 Microsoft.Shutdown.TabStripModel.SendDetachWebContentsNotifications
+0:21:28 Browser2 Close Tab2 at 0
+0:21:28 Tab2 WebContentsDestroyed
+0:21:28 Microsoft.UnloadController.TabStripEmpty
+0:21:28 Microsoft.UnloadController.IsUnclosableApp_IsNotWebApp
+0:21:28 Microsoft.UnloadController.HasCompletedUnloadProcessing_True
+0:21:28 Microsoft.Shutdown.OnWindowClosing
+0:21:28 Microsoft.UnloadController.IsUnclosableApp_IsNotWebApp
+0:21:28 Microsoft.UnloadController.HasCompletedUnloadProcessing_True
+0:21:28 Microsoft.Shutdown.OnWindowClosing_MaybeClearBrowsingDataOnExit
+0:21:28 Microsoft.Shutdown.OnWindowClosing_ClearBrowsingDataOnExitNotInProgress
+0:21:28 Microsoft.Shutdown.OnWindowClosingPostClearBrowsingData_NoBrowsingDataCleared
+0:21:28 Widget Closed: BrowserFrame
+0:21:29 Microsoft.Last_Browser_Removed
+0:21:29 Microsoft.Shutdown.ShutdownIfNoBrowsers
+0:21:29 Microsoft.Shutdown.SetTryingToQuit_Quitting
+0:21:29 Microsoft.Shutdown.NotifyAppTerminating
+0:21:30 Microsoft.Shutdown.OnAppExiting
+0:21:30 Microsoft.Shutdown.HandleAppExitingForPlatform_Aura
+0:21:30 Microsoft.Shutdown.HandleAppExitingForPlatform_Aura.NotificationUIManager_StartShutdown
+0:21:30 Microsoft.Shutdown.HandleAppExitingForPlatform_Aura.CloseAllSecondaryWidgets
+0:21:34 Shutdown

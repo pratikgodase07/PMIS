@@ -1,0 +1,11 @@
+package onetoone_entity;
+
+public class Employee {
+	private int id;
+	private String name;
+	private String city;
+	
+	@OnetoOne
+	private laptop Laptop;
+
+}
